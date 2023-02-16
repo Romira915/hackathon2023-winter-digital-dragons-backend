@@ -7,3 +7,4 @@ MarkupSafe==2.1.2
 python-dotenv==0.21.1
 six==1.16.0
 Werkzeug==2.2.3
+mysql-connector-python==8.0.32
