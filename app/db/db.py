@@ -86,6 +86,7 @@ class Release_DB(object):
             criteria.append(f"main_category_id = {category_id} AND sub_category_id = {category_id}")
         if pr_type is not None:
             criteria.append(f"pr_type = '{pr_type}'")
+
         if start_date is not None:
             start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d')
             if end_date is None:
@@ -93,6 +94,10 @@ class Release_DB(object):
             else:
                 end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d')
             criteria.append(f"created_at >= '{start_date}' AND created_at <= '{end_date}'")
+        # start_dateがなく、end_dateだけある場合
+        elif end_date is not None:
+            end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d')
+            criteria.append(f"created_at <= '{end_date}'")
 
         query = f"SELECT * FROM {self.table}"
         if len(criteria) != 0:

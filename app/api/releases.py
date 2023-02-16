@@ -26,24 +26,28 @@ def t_releases():
 
 @bp_releases.route('/search')
 def search():
+    """"
+        ・start_date: 検索する期間の開始日。YYYY-MM-DD形式で指定します。
+        ・end_date: 検索する期間の終了日。YYYY-MM-DD形式で指定します。
+    """
     limit = DEFAULT_LIMIT
     if request.args.get('limit') is not None:
         limit = int(request.args.get('limit'))
-    args = []
+    kargs = {}
     if request.args.get('category_id') is not None:
         main_category_id = int(request.args.get('category_id'))
-        args.append(main_category_id)
+        kargs['main_category_id'] = main_category_id
     if request.args.get('pr_type') is not None:
         pr_type = request.args.get('pr_type')
-        args.append(pr_type)
+        kargs['pr_type'] = pr_type
     if request.args.get('start_date') is not None:
         start_date = request.args.get('start_date')
-        args.append(start_date)
+        kargs['start_date'] = start_date
     if request.args.get('end_date') is not None:
         end_date = request.args.get('end_date')
-        args.append(end_date)
+        kargs['end_date'] = end_date
         
     release_db = Release_DB.get_instance()
-    results = fix_encoding(release_db.search(limit, *args))
+    results = fix_encoding(release_db.search(limit, **kargs))
     
     return results
