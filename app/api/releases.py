@@ -1,4 +1,5 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, Response
+import json
 
 from app.data_access_object import t_release
 
@@ -8,6 +9,8 @@ bp_releases = Blueprint('bp_releases', __name__, url_prefix='/api')
 
 DEFAULT_LIMIT = 100
 
+def fix_encoding(releases):
+    return Response(json.dumps(releases, ensure_ascii=False), content_type='application/json; charset=utf-8')
 
 @bp_releases.route('/releases')
 def t_releases():
@@ -15,9 +18,9 @@ def t_releases():
     if request.args.get('limit') is not None:
         limit = int(request.args.get('limit'))
 
-    press_release = t_release.get_releases(limit)
+    press_release = fix_encoding(t_release.get_releases(limit))
 
-    return jsonify(press_release)
+    return press_release
 
 @bp_releases.route('/all_releases')
 def all_releases():
@@ -26,23 +29,27 @@ def all_releases():
         limit = int(request.args.get('limit'))
     
     release_db = Release_DB.get_instance()
-    all_releases = release_db.get_all(limit)
+    all_releases = fix_encoding(release_db.get_all(limit))
     
-    return jsonify(all_releases)
+    return all_releases
 
 @bp_releases.route('/search')
 def search():
     limit = DEFAULT_LIMIT
     if request.args.get('limit') is not None:
         limit = int(request.args.get('limit'))
+    args = []
     if request.args.get('main_category_id') is not None:
         main_category_id = int(request.args.get('main_category_id'))
+        args.append(main_category_id)
     if request.args.get('sub_category_id') is not None:
         sub_category_id = int(request.args.get('sub_category_id'))
+        args.append(sub_category_id)
     if request.args.get('pr_type') is not None:
         pr_type = request.args.get('pr_type')
+        args.append(pr_type)
         
     release_db = Release_DB.get_instance()
-    results = release_db.search(limit, main_category_id, sub_category_id, pr_type)
+    results = fix_encoding(release_db.search(limit, *args))
     
-    return jsonify(results)
+    return results
