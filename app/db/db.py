@@ -19,8 +19,8 @@ class Release_DB(object):
             'user': os.getenv('MYSQL_USER'),
             'password': os.getenv('MYSQL_PASSWORD'),
             'database': os.getenv('MYSQL_DATABASE'),
-            'host': 'hackathon2023-winter-digital-dragons-backend-mysql-1',
-            'port': 3306,
+            'host': os.getenv('MYSQL_HOST'),
+            'port': os.getenv('MYSQL_PORT'),
         }
         self._cnx = self.connect_to_mysql()
 
@@ -112,11 +112,3 @@ class Release_DB(object):
         self._cnx.close()
         
         return results
-
-def main():
-    release_db = Release_DB.get_instance()
-    result = release_db.search(main_category_id=1)
-    print(len(result))
-
-if __name__ == "__main__":
-    main()
