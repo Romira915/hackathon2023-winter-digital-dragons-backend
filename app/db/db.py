@@ -22,8 +22,7 @@ class Release_DB(object):
             'host': 'hackathon2023-winter-digital-dragons-backend-mysql-1',
             'port': 3306,
         }
-        if not self._cnx:
-            self._cnx = self.connect_to_mysql()
+        self._cnx = self.connect_to_mysql()
 
     def connect_to_mysql(self):
         return mysql.connector.connect(**self.db_config)
