@@ -1,6 +1,5 @@
+from flask import Blueprint, jsonify, request, Response
 import json
-
-from flask import Blueprint, Response, jsonify, request
 
 from app.db.db import Release_DB
 
@@ -25,35 +24,26 @@ def t_releases():
     return all_releases
 
 
-@bp_releases.route('/all_releases')
-def all_releases():
-    limit = DEFAULT_LIMIT
-    if request.args.get('limit') is not None:
-        limit = int(request.args.get('limit'))
-
-    release_db = Release_DB.get_instance()
-    all_releases = fix_encoding(release_db.get_all(limit))
-
-    return all_releases
-
-
 @bp_releases.route('/search')
 def search():
     limit = DEFAULT_LIMIT
     if request.args.get('limit') is not None:
         limit = int(request.args.get('limit'))
     args = []
-    if request.args.get('main_category_id') is not None:
-        main_category_id = int(request.args.get('main_category_id'))
+    if request.args.get('category_id') is not None:
+        main_category_id = int(request.args.get('category_id'))
         args.append(main_category_id)
-    if request.args.get('sub_category_id') is not None:
-        sub_category_id = int(request.args.get('sub_category_id'))
-        args.append(sub_category_id)
     if request.args.get('pr_type') is not None:
         pr_type = request.args.get('pr_type')
         args.append(pr_type)
-
+    if request.args.get('start_date') is not None:
+        start_date = request.args.get('start_date')
+        args.append(start_date)
+    if request.args.get('end_date') is not None:
+        end_date = request.args.get('end_date')
+        args.append(end_date)
+        
     release_db = Release_DB.get_instance()
     results = fix_encoding(release_db.search(limit, *args))
-
+    
     return results
