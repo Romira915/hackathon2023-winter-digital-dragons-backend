@@ -2,7 +2,7 @@ name: Deploy to s3
 
 on:
   push:
-    branches: [main, feature/cicd]
+    branches: [main]
 
   workflow_dispatch:
 
@@ -50,8 +50,3 @@ jobs:
       - name: push image
         run: |
           docker push ${{ secrets.ECR_URL }}/hackathon2023-winter-dd-backend:latest
-
-      # キャッシュパージ
-      # - name: clear cache
-      #   run: |
-      #     aws cloudfront create-invalidation --distribution-id ${{ secrets.DISTRIBUTION_ID }} --paths "/*"
