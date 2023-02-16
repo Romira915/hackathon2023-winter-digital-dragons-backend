@@ -25,7 +25,10 @@ class Release_DB(object):
         self._cnx = self.connect_to_mysql()
 
     def connect_to_mysql(self):
-        return mysql.connector.connect(**self.db_config)
+        try:
+            return mysql.connector.connect(**self.db_config)        
+        except mysql.connector.Error as err:
+            raise Exception(f"Failed to connect to MySQL: {err}")
     
     @classmethod
     def get_instance(cls):
@@ -103,9 +106,17 @@ class Release_DB(object):
 
         cursor = self._cnx.cursor()
         cursor.execute(query)
-        resulst = [self.to_dict(*c) for c in cursor]
+        results = [self.to_dict(*c) for c in cursor]
         
         cursor.close()
         self._cnx.close()
         
         return results
+
+def main():
+    release_db = Release_DB.get_instance()
+    result = release_db.search(main_category_id=1)
+    print(len(result))
+
+if __name__ == "__main__":
+    main()
