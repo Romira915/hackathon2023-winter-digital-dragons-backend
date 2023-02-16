@@ -6,7 +6,7 @@ load_dotenv()
     
 class Release_DB(object):
     _instance = None
-    
+    _cnx = None
     
     def __new__(cls, *args, **kwars):
         if not cls._instance:
@@ -22,15 +22,17 @@ class Release_DB(object):
             'host': 'hackathon2023-winter-digital-dragons-backend-mysql-1',
             'port': 3306,
         }
+        if not self._cnx:
+            self._cnx = self.connect_to_mysql()
 
     def connect_to_mysql(self):
         return mysql.connector.connect(**self.db_config)
     
     @classmethod
     def get_instance(cls):
-        if cls.__instance is None:
+        if cls._instance is None:
             cls()
-        return cls.__instance
+        return cls._instance
     
     def to_dict(self, 
                 body, 
@@ -74,15 +76,14 @@ class Release_DB(object):
 
     # 記事を全件取得
     def get_all(self, limit=100):
-        cnx = self.connect_to_mysql()
-        cursor = cnx.cursor()
+        cursor =self._cnx.cursor()
         query = f"SELECT * FROM {self.table} LIMIT {limit}"
         cursor.execute(query)
         
         releases = [self.to_dict(*c) for c in cursor]
         
         cursor.close()
-        cnx.close()
+        self._cnx.close()
         return releases
 
 
@@ -101,19 +102,19 @@ class Release_DB(object):
             query += f" WHERE {criteria}"
         query += f" LIMIT {limit}"
 
-        cnx = self.connect_to_mysql()
-        cursor = cnx.cursor()
+        cursor = self._cnx.cursor()
         cursor.execute(query)
         resulst = [self.to_dict(*c) for c in cursor]
         
         cursor.close()
-        cnx.close()
+        self._cnx.close()
         
         return results
     
+    
 def main():
     db = Release_DB()
-    print(Release_DB().get_all())
+    print(db.get_all())
 
 if __name__ == "__main__":
     main()
