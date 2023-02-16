@@ -1,8 +1,4 @@
-import mysql.connector
 import datetime
-
-import settings
-
 from .data_access_object import data_access_object
 
 
@@ -23,16 +19,12 @@ class Release_DB(object):
 
 
     def get_n_releases(self, limit=100):
-        cursor = data_access_object.get_cursor()
         query = f"SELECT * FROM releases LIMIT {limit}"
-        cursor.execute(query)
-
-        keys = cursor.column_names
-        rows = cursor.fetchall()
-        
+        with data_access_object.get_cursor() as cursor:
+            cursor.execute(query)
+            keys = cursor.column_names
+            rows = cursor.fetchall()
         releases = [dict(zip(keys, row)) for row in rows]
-
-        cursor.close()
         return releases
 
 
@@ -40,8 +32,8 @@ class Release_DB(object):
             self, 
             limit=100, 
             category_id: int = None, pr_type: str = None,
+            start_date: str = None, end_date: str = None,
             prefecture: str = None, industry: str = None, ipo_type: str = None,
-            start_date: str = None, end_date: str = None
         ):
         query = f"SELECT r.*, c.address, c.industry, c.ipo_type FROM releases AS r LEFT JOIN companies AS c ON r.company_id = c.company_id"
         criteria = []
@@ -59,30 +51,21 @@ class Release_DB(object):
             criteria.append(f"ipo_type LIKE '{ipo_type}'")
         if start_date is not None:
             start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d')
-            if end_date is None:
-                end_date = datetime.datetime.now()
-            else:
-                end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d')
+            end_date =  datetime.datetime.now() if end_date is None else datetime.datetime.strptime(end_date, '%Y-%m-%d')
             criteria.append(f"created_at >= '{start_date}' AND created_at <= '{end_date}'")
         # start_dateがなく、end_dateだけある場合
         elif end_date is not None:
             end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d')
             criteria.append(f"created_at <= '{end_date}'")
 
-        #query = f"SELECT * FROM {self.table}"
-        
         if len(criteria) != 0:
             query += f" WHERE {' AND '.join(criteria)}"
         query += f" LIMIT {limit}"
 
-        cursor = data_access_object.get_cursor()
-        cursor.execute(query)
-        
-        keys = cursor.column_names
-        rows = cursor.fetchall()
-        
+        with data_access_object.get_cursor() as cursor:
+            cursor.execute(query)
+            keys = cursor.column_names
+            rows = cursor.fetchall()
         results = [dict(zip(keys, row)) for row in rows]
-
-        cursor.close()
 
         return results
