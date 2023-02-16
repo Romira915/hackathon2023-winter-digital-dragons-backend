@@ -25,6 +25,7 @@ services:
       - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
-      - ./data:/data 
+      - ./mysql/my.cnf:/etc/my.cnf
+      - ./data:/data
 volumes:
   mysql-data:
