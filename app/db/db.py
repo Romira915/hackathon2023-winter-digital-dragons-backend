@@ -1,27 +1,37 @@
-from flask import Flask, jsonify
 import mysql.connector
 import os, json
 from dotenv import load_dotenv
 load_dotenv()
 
-
-app = Flask(__name__)
-
-db_config = {
-    'user': os.getenv('MYSQL_USER'),
-    'password': os.getenv('MYSQL_PASSWORD'),
-    'database': os.getenv('MYSQL_DATABASE'),
-    'host': 'hackathon2023-winter-digital-dragons-backend-mysql-1',
-    'port': 3306,
-}
-
     
-class DB():
-    def __init__(self, ):
+class Release_DB(object):
+    _instance = None
+    _cnx = None
+    
+    def __new__(cls, *args, **kwars):
+        if not cls._instance:
+            cls._instance = super(Release_DB, cls).__new__(cls)
+        return cls._instance
+    
+    def __init__(self):
         self.table = 'test_table1'
+        self.db_config = {
+            'user': os.getenv('MYSQL_USER'),
+            'password': os.getenv('MYSQL_PASSWORD'),
+            'database': os.getenv('MYSQL_DATABASE'),
+            'host': 'hackathon2023-winter-digital-dragons-backend-mysql-1',
+            'port': 3306,
+        }
+        self._cnx = self.connect_to_mysql()
 
     def connect_to_mysql(self):
-        return mysql.connector.connect(**db_config)
+        return mysql.connector.connect(**self.db_config)
+    
+    @classmethod
+    def get_instance(cls):
+        if cls._instance is None:
+            cls()
+        return cls._instance
     
     def to_dict(self, 
                 body, 
@@ -65,15 +75,14 @@ class DB():
 
     # 記事を全件取得
     def get_all(self, limit=100):
-        cnx = self.connect_to_mysql()
-        cursor = cnx.cursor()
+        cursor =self._cnx.cursor()
         query = f"SELECT * FROM {self.table} LIMIT {limit}"
         cursor.execute(query)
         
         releases = [self.to_dict(*c) for c in cursor]
         
         cursor.close()
-        cnx.close()
+        self._cnx.close()
         return releases
 
 
@@ -92,19 +101,11 @@ class DB():
             query += f" WHERE {criteria}"
         query += f" LIMIT {limit}"
 
-        cnx = self.connect_to_mysql()
-        cursor = cnx.cursor()
+        cursor = self._cnx.cursor()
         cursor.execute(query)
         resulst = [self.to_dict(*c) for c in cursor]
         
         cursor.close()
-        cnx.close()
+        self._cnx.close()
         
         return results
-
-def main():
-    db = DB()
-    print(db.get_all())
-
-if __name__ == "__main__":
-    main()
