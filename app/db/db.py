@@ -19,13 +19,16 @@ class Release_DB(object):
             'user': os.getenv('MYSQL_USER'),
             'password': os.getenv('MYSQL_PASSWORD'),
             'database': os.getenv('MYSQL_DATABASE'),
-            'host': 'hackathon2023-winter-digital-dragons-backend-mysql-1',
-            'port': 3306,
+            'host': os.getenv('MYSQL_HOST'),
+            'port': os.getenv('MYSQL_PORT'),
         }
         self._cnx = self.connect_to_mysql()
 
     def connect_to_mysql(self):
-        return mysql.connector.connect(**self.db_config)
+        try:
+            return mysql.connector.connect(**self.db_config)        
+        except mysql.connector.Error as err:
+            raise Exception(f"Failed to connect to MySQL: {err}")
     
     @classmethod
     def get_instance(cls):
@@ -103,7 +106,7 @@ class Release_DB(object):
 
         cursor = self._cnx.cursor()
         cursor.execute(query)
-        resulst = [self.to_dict(*c) for c in cursor]
+        results = [self.to_dict(*c) for c in cursor]
         
         cursor.close()
         self._cnx.close()
