@@ -27,6 +27,9 @@ def t_releases():
 @bp_releases.route('/search')
 def search():
     """"
+        ・limit: 取得する記事の数。デフォルトは100。
+        ・category_id: 検索するカテゴリーのID。カテゴリーIDは以下の通りです。
+        ・pr_type: 検索するPRの種類。PRの種類は以下の通りです。
         ・start_date: 検索する期間の開始日。YYYY-MM-DD形式で指定します。
         ・end_date: 検索する期間の終了日。YYYY-MM-DD形式で指定します。
     """
