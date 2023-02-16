@@ -110,11 +110,3 @@ class Release_DB(object):
         self._cnx.close()
         
         return results
-    
-    
-def main():
-    db = Release_DB()
-    print(db.get_all())
-
-if __name__ == "__main__":
-    main()
