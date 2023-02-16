@@ -23,7 +23,7 @@ jobs:
 
       - name: decode secrets file .env
         env:
-          DOTEND_ENCODE: ${{ secrets.TEST_DOTENV }}
+          DOTEND_ENCODE: ${{ secrets.DOTENV_ENCODED }}
 
         run: |
           echo $DOTEND_ENCODE | base64 --decode > .env
