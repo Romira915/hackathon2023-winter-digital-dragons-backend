@@ -16,7 +16,7 @@ class Release_DB(object):
         return cls._instance
 
     def __init__(self):
-        self.table = 'release'
+        self.table = 'releases'
         self.db_config = {
             'user': settings.MYSQL_USER,
             'password': settings.MYSQL_PASSWORD,
