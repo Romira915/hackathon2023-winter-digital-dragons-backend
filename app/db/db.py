@@ -1,27 +1,36 @@
-from flask import Flask, jsonify
 import mysql.connector
 import os, json
 from dotenv import load_dotenv
 load_dotenv()
 
-
-app = Flask(__name__)
-
-db_config = {
-    'user': os.getenv('MYSQL_USER'),
-    'password': os.getenv('MYSQL_PASSWORD'),
-    'database': os.getenv('MYSQL_DATABASE'),
-    'host': 'hackathon2023-winter-digital-dragons-backend-mysql-1',
-    'port': 3306,
-}
-
     
-class DB():
-    def __init__(self, ):
+class Release_DB(object):
+    _instance = None
+    
+    
+    def __new__(cls, *args, **kwars):
+        if not cls._instance:
+            cls._instance = super(Release_DB, cls).__new__(cls)
+        return cls._instance
+    
+    def __init__(self):
         self.table = 'test_table1'
+        self.db_config = {
+            'user': os.getenv('MYSQL_USER'),
+            'password': os.getenv('MYSQL_PASSWORD'),
+            'database': os.getenv('MYSQL_DATABASE'),
+            'host': 'hackathon2023-winter-digital-dragons-backend-mysql-1',
+            'port': 3306,
+        }
 
     def connect_to_mysql(self):
-        return mysql.connector.connect(**db_config)
+        return mysql.connector.connect(**self.db_config)
+    
+    @classmethod
+    def get_instance(cls):
+        if cls.__instance is None:
+            cls()
+        return cls.__instance
     
     def to_dict(self, 
                 body, 
@@ -101,10 +110,10 @@ class DB():
         cnx.close()
         
         return results
-
+    
 def main():
-    db = DB()
-    print(db.get_all())
+    db = Release_DB()
+    print(Release_DB().get_all())
 
 if __name__ == "__main__":
     main()
