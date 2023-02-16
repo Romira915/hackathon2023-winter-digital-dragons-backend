@@ -6,3 +6,9 @@
 cp .env.example .env
 docker compose up -d --build
 ```
+
+## API
+
+- /api/releases
+  - query param
+    - limit: int
