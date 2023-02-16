@@ -1,14 +1,11 @@
 import json
 import os
 
-import mysql.connector
-
-import settings
+from .data_access_object import data_access_object
 
 
 class Release_DB(object):
     _instance = None
-    _cnx = None
 
     def __new__(cls, *args, **kwars):
         if not cls._instance:
@@ -17,20 +14,6 @@ class Release_DB(object):
 
     def __init__(self):
         self.table = 'releases'
-        self.db_config = {
-            'user': settings.MYSQL_USER,
-            'password': settings.MYSQL_PASSWORD,
-            'database': settings.MYSQL_DATABASE,
-            'host': settings.MYSQL_HOST,
-            'port': settings.MYSQL_PORT,
-        }
-        self._cnx = self.connect_to_mysql()
-
-    def connect_to_mysql(self):
-        try:
-            return mysql.connector.connect(**self.db_config)
-        except mysql.connector.Error as err:
-            raise Exception(f"Failed to connect to MySQL: {err}")
 
     @classmethod
     def get_instance(cls):
@@ -80,14 +63,13 @@ class Release_DB(object):
     # 記事を全件取得
 
     def get_all(self, limit=100):
-        cursor = self._cnx.cursor()
+        cursor = data_access_object.get_cursor()
         query = f"SELECT * FROM {self.table} LIMIT {limit}"
         cursor.execute(query)
 
         releases = [self.to_dict(*c) for c in cursor]
 
         cursor.close()
-        self._cnx.close()
         return releases
 
     def search(self, limit=100, main_category_id: int = None, sub_category_id: int = None, pr_type: str = None):
@@ -105,11 +87,10 @@ class Release_DB(object):
             query += f" WHERE {criteria}"
         query += f" LIMIT {limit}"
 
-        cursor = self._cnx.cursor()
+        cursor = data_access_object.get_cursor()
         cursor.execute(query)
         results = [self.to_dict(*c) for c in cursor]
 
         cursor.close()
-        self._cnx.close()
 
         return results
