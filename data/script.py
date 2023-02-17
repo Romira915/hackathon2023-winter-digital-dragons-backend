@@ -12,7 +12,7 @@ headers = { "Authorization": f"Bearer {token}" }
 
 def fetch_releases(page):
     time.sleep(0.1)
-    res = requests.get(f"{base_url}/releases?page={page}", headers=headers)
+    res = requests.get(f"{base_url}/releases?per_page={page}&from_date=2022-03-01", headers=headers)
     return json.loads(res.content.decode())
 
 def fetch_company_info(company_id):
@@ -41,5 +41,5 @@ def convert_to_csv(page):
         csv_writer_release.writerow(release.values())
         csv_writer_company.writerow(company.values())
 
-for page in list(range(1, 11)):
-    convert_to_csv(page)
+#for page in list(range(1, 11)):
+convert_to_csv(999)
