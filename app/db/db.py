@@ -25,7 +25,7 @@ class Release_DB(object):
 
 
     def get_n_releases(self, limit=100):
-        query = f"SELECT * FROM releases LIMIT {limit}"
+        query = f"SELECT DISTINCT * FROM releases LIMIT {limit}"
         with data_access_object.get_cursor() as cursor:
             cursor.execute(query)
             keys = cursor.column_names
@@ -43,7 +43,7 @@ class Release_DB(object):
             prefecture: str = None, industry: str = None, ipo_type: str = None,
             sort_field: str = None, sort_order: str = None
         ):
-        query = f"SELECT r.*, c.address, c.industry, c.ipo_type FROM releases AS r LEFT JOIN companies AS c ON r.company_id = c.company_id"
+        query = f"SELECT DISTINCT r.*, c.address, c.industry, c.ipo_type FROM releases AS r LEFT JOIN companies AS c ON r.company_id = c.company_id"
         criteria = []
         
         if super_category_id is not None and SUPER_MAIN_SUB_ID_MAP.get(super_category_id) is not None:
@@ -93,5 +93,5 @@ class Release_DB(object):
             keys = cursor.column_names
             rows = cursor.fetchall()
         results = [dict(zip(keys, row)) for row in rows]
-        #return results
-        return [query] + [f'main:{row["main_category_id"]}, sub:{row["sub_category_id"]}' for row in results]
+        return results
+        #return [query] + [row['title'] for row in results]
