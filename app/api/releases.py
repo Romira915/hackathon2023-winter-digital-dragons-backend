@@ -5,7 +5,7 @@ from app.db.db import Release_DB
 
 bp_releases = Blueprint('bp_releases', __name__, url_prefix='/api')
 DEFAULT_LIMIT = 100
-SEARCH_ITEMS = ['category_id', 'pr_type', 'prefecture', 'industry', 'ipo_type', 'start_date', 'end_date']
+SEARCH_ITEMS = ['category_id', 'pr_type', 'prefecture', 'industry', 'ipo_type', 'start_date', 'end_date', 'sort_field', 'sort_order']
 
 
 def fix_encoding(releases):
@@ -31,6 +31,8 @@ def search():
         ・ipo_type: 検索するIPOの種類。
         ・start_date: 検索する期間の開始日。YYYY-MM-DD形式で指定します。
         ・end_date: 検索する期間の終了日。YYYY-MM-DD形式で指定します。
+        ・sort_field: 検索結果のソートに使うフィールド。
+        ・sort_order: 検索結果のソート順。デフォルトはDESC。
     """
     limit = int(request.args.get('limit', DEFAULT_LIMIT))
     search_params = {item: request.args.get(item) for item in SEARCH_ITEMS if request.args.get(item)}

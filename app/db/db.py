@@ -34,6 +34,7 @@ class Release_DB(object):
             category_id: int = None, pr_type: str = None,
             start_date: str = None, end_date: str = None,
             prefecture: str = None, industry: str = None, ipo_type: str = None,
+            sort_field: str = None, sort_order: str = None
         ):
         query = f"SELECT r.*, c.address, c.industry, c.ipo_type FROM releases AS r LEFT JOIN companies AS c ON r.company_id = c.company_id"
         criteria = []
@@ -60,12 +61,17 @@ class Release_DB(object):
 
         if len(criteria) != 0:
             query += f" WHERE {' AND '.join(criteria)}"
+        
+        if sort_field is not None:
+            query += f" ORDER BY {sort_field}"
+            if sort_order is not None and sort_order in ['ASC', 'DESC']:
+                query += f" {sort_order}"
+                
         query += f" LIMIT {limit}"
-
+        
         with data_access_object.get_cursor() as cursor:
             cursor.execute(query)
             keys = cursor.column_names
             rows = cursor.fetchall()
         results = [dict(zip(keys, row)) for row in rows]
-
         return results
