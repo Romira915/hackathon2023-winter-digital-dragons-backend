@@ -5,7 +5,7 @@ from app.db.db import Release_DB
 
 bp_releases = Blueprint('bp_releases', __name__, url_prefix='/api')
 DEFAULT_LIMIT = 100
-SEARCH_ITEMS = ['pr_type', 'prefecture', 'industry', 'ipo_type', 'start_date', 'end_date', 'sort_field', 'sort_order']
+SEARCH_ITEMS = ['super_category_id', 'pr_type', 'prefecture', 'industry', 'ipo_type', 'start_date', 'end_date', 'sort_field', 'sort_order']
 
 
 def fix_encoding(releases):
@@ -24,6 +24,8 @@ def n_releases():
 def search():
     """"検索条件
         ・limit: 取得する記事の数。デフォルトは100。
+        ・super_category_id: 大カテゴリのID。
+            1: "テクノロジー", 2: "モバイル", 3: "アプリケーション", 4: "エンタメ", 5: "ビューティ", 6: "ファッション", 7: "ライフスタイル", 8: "ビジネス", 9: "グルメ", 10: "スポーツ", 11: "ゲーム", 12: "トラベル", 13: "マーケティング"
         ・category_id: 検索するカテゴリーのID。
         ・pr_type: 検索するPRの種類。
         ・prefecture: 検索する都道府県。

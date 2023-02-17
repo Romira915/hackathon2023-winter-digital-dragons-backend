@@ -1,6 +1,11 @@
 import datetime
 from .data_access_object import data_access_object
 from typing import Tuple, Union
+import json
+import os
+print(os.listdir('./'))
+with open('./app/db/super_mainsub_id_map.json', 'r') as f:
+    SUPER_MAIN_SUB_ID_MAP = json.load(f)
 
 
 class Release_DB(object):
@@ -32,6 +37,7 @@ class Release_DB(object):
     def search(
             self, 
             limit=100, 
+            super_category_id: int = None,
             category_ids: Union[int, Tuple] = None, pr_type: str = None,
             start_date: str = None, end_date: str = None,
             prefecture: str = None, industry: str = None, ipo_type: str = None,
@@ -39,7 +45,16 @@ class Release_DB(object):
         ):
         query = f"SELECT r.*, c.address, c.industry, c.ipo_type FROM releases AS r LEFT JOIN companies AS c ON r.company_id = c.company_id"
         criteria = []
-
+        
+        if super_category_id is not None and SUPER_MAIN_SUB_ID_MAP.get(super_category_id) is not None:
+            if category_ids is not None:
+                if isinstance(category_ids, tuple) and len(category_ids) > 0:
+                    category_ids += tuple(SUPER_MAIN_SUB_ID_MAP.get(super_category_id))
+                elif isinstance(category_ids, int):
+                    category_ids = (category_ids,) + tuple(SUPER_MAIN_SUB_ID_MAP.get(super_category_id))
+            else:
+                category_ids=tuple(SUPER_MAIN_SUB_ID_MAP.get(super_category_id))
+                
         if category_ids is not None:
             if isinstance(category_ids, tuple) and len(category_ids) > 0:
                 criteria.append(f"main_category_id in {category_ids} OR sub_category_id in {category_ids}")
@@ -78,5 +93,5 @@ class Release_DB(object):
             keys = cursor.column_names
             rows = cursor.fetchall()
         results = [dict(zip(keys, row)) for row in rows]
-        return results
-        #return [query] + [f'main:{row["main_category_id"]}, sub:{row["sub_category_id"]}' for row in results]
+        #return results
+        return [query] + [f'main:{row["main_category_id"]}, sub:{row["sub_category_id"]}' for row in results]
