@@ -5,7 +5,7 @@ from app.db.db import Release_DB
 
 bp_releases = Blueprint('bp_releases', __name__, url_prefix='/api')
 DEFAULT_LIMIT = 100
-SEARCH_ITEMS = ['category_id', 'pr_type', 'prefecture', 'industry', 'ipo_type', 'start_date', 'end_date', 'sort_field', 'sort_order']
+SEARCH_ITEMS = ['pr_type', 'prefecture', 'industry', 'ipo_type', 'start_date', 'end_date', 'sort_field', 'sort_order']
 
 
 def fix_encoding(releases):
@@ -36,6 +36,11 @@ def search():
     """
     limit = int(request.args.get('limit', DEFAULT_LIMIT))
     search_params = {item: request.args.get(item) for item in SEARCH_ITEMS if request.args.get(item)}
+    category_ids = tuple(map(int, request.args.getlist('category_id')))
+    if len(category_ids) > 1:
+        search_params['category_ids'] = category_ids
+    elif len(category_ids) == 1:
+        search_params['category_ids'] = category_ids[0]
     release_db = Release_DB.get_instance()
     results = fix_encoding(release_db.search(limit, **search_params))
     

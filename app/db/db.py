@@ -1,5 +1,6 @@
 import datetime
 from .data_access_object import data_access_object
+from typing import Tuple, Union
 
 
 class Release_DB(object):
@@ -31,7 +32,7 @@ class Release_DB(object):
     def search(
             self, 
             limit=100, 
-            category_id: int = None, pr_type: str = None,
+            category_ids: Union[int, Tuple] = None, pr_type: str = None,
             start_date: str = None, end_date: str = None,
             prefecture: str = None, industry: str = None, ipo_type: str = None,
             sort_field: str = None, sort_order: str = None
@@ -39,8 +40,11 @@ class Release_DB(object):
         query = f"SELECT r.*, c.address, c.industry, c.ipo_type FROM releases AS r LEFT JOIN companies AS c ON r.company_id = c.company_id"
         criteria = []
 
-        if category_id is not None:
-            criteria.append(f"main_category_id = {category_id} AND sub_category_id = {category_id}")
+        if category_ids is not None:
+            if isinstance(category_ids, tuple) and len(category_ids) > 0:
+                criteria.append(f"main_category_id in {category_ids} OR sub_category_id in {category_ids}")
+            elif isinstance(category_ids, int):
+                criteria.append(f"main_category_id = {category_ids} OR sub_category_id = {category_ids}")
         if pr_type is not None:
             criteria.append(f"pr_type = '{pr_type}'")
         if prefecture is not None:
@@ -75,3 +79,4 @@ class Release_DB(object):
             rows = cursor.fetchall()
         results = [dict(zip(keys, row)) for row in rows]
         return results
+        #return [query] + [f'main:{row["main_category_id"]}, sub:{row["sub_category_id"]}' for row in results]
